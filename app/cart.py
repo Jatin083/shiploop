@@ -11,10 +11,18 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, ConfigDict, Field
 
 router = APIRouter(prefix="/carts", tags=["carts"])
+products_router = APIRouter(prefix="/products", tags=["products"])
 
 
 @dataclass
 class Product:
+    id: str
+    name: str
+    price_cents: int
+    stock: int
+
+
+class ProductResponse(BaseModel):
     id: str
     name: str
     price_cents: int
@@ -106,6 +114,20 @@ def build_cart_response(cart_id: int, cart: dict[str, int]) -> CartResponse:
         items=line_items,
         total_cents=sum(item.line_total_cents for item in line_items),
     )
+
+
+@products_router.get("", response_model=list[ProductResponse])
+def list_products() -> list[ProductResponse]:
+    """Return every product with its price and current stock."""
+    return [
+        ProductResponse(
+            id=product.id,
+            name=product.name,
+            price_cents=product.price_cents,
+            stock=product.stock,
+        )
+        for product in products.values()
+    ]
 
 
 @router.post("", response_model=CartResponse, status_code=status.HTTP_201_CREATED)

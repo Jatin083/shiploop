@@ -56,6 +56,7 @@ python -m pytest
 
 | Method | Path | What it does | Success |
 |---|---|---|---|
+| GET | `/products` | List products with their prices and current stock | 200 |
 | POST | `/carts` | Create an empty cart | 201 |
 | GET | `/carts/{cart_id}` | Show a cart, its items and total | 200 |
 | POST | `/carts/{cart_id}/items` | Add a product to a cart | 201 |
