@@ -157,7 +157,7 @@ def add_item(cart_id: int, request: AddItemRequest) -> CartResponse:
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Product '{request.product_id}' not found",
         )
-    cart[request.product_id] = request.quantity
+    cart[request.product_id] = cart.get(request.product_id, 0) + request.quantity
     return build_cart_response(cart_id, cart)
 
 
