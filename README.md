@@ -20,8 +20,6 @@ ShipLoop uses Switch to coordinate three specialized AI agents and a human opera
 - **Reviewer:** Independently examines pull requests, runs tests and challenges fixes with additional edge cases.
 - **Human:** Controls approvals, customer communication and the final GitHub merge.
 
-## Workflow
-
 ## Architecture
 
 ```mermaid
@@ -48,6 +46,7 @@ flowchart TD
     M --> N[Human Merges PR]
     N --> O[Triager Drafts Customer Update]
     O --> P[Human Approval]
+```
 
 ## Switch Setup and Agent Configuration
 
