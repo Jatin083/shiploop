@@ -81,6 +81,14 @@ def test_order_for_more_than_stock_returns_409(client, cart_id):
     assert response.json() == {"detail": "Not enough stock for product 'monitor'"}
 
 
+def test_order_for_all_remaining_stock_succeeds(client, cart_id):
+    add_item(client, cart_id, "monitor", 5)
+
+    place_order(client, cart_id)
+
+    assert products["monitor"].stock == 0
+
+
 def test_refused_order_changes_nothing(client, cart_id):
     add_item(client, cart_id, "mouse", 1)
     add_item(client, cart_id, "monitor", 6)

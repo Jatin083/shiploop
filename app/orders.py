@@ -45,7 +45,7 @@ def reset_order_data() -> None:
 def check_stock(line_items: list[LineItem]) -> None:
     """Respond with 409 if any item cannot be supplied from current stock."""
     for item in line_items:
-        if item.quantity >= products[item.product_id].stock:
+        if item.quantity > products[item.product_id].stock:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=f"Not enough stock for product '{item.product_id}'",
