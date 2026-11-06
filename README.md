@@ -159,9 +159,9 @@ Prices are represented in cents.
 
 The demo application contains three deliberately introduced bugs to demonstrate the workflow:
 
-1. Adding quantities of an existing cart item incorrectly replaces the previous quantity.
-2. Checkout rejects an order when requested quantity exactly equals available stock.
-3. Cancelling the same order twice restores inventory more than once.
+1. **Cart quantity bug:** Adding the same product multiple times replaces the existing quantity instead of adding to it.
+2. **Exact-stock checkout:** This bug was fixed and merged in PR #3. Checkout now allows customers to purchase exactly the available stock.
+3. **Duplicate cancellation bug:** Cancelling the same order multiple times restores stock multiple times.
 
 These are intentional demonstration bugs, not claims about production software.
 
