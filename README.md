@@ -304,7 +304,7 @@ shiploop/
 ## Demo
 
 - GitHub Repository: https://github.com/Jatin083/shiploop
-- Demo Video: Coming soon
+- Demo Video: https://youtu.be/ueEJwIVH1A4
 
 ## Hackathon
 
