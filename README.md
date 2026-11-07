@@ -3,7 +3,7 @@
 
 ShipLoop is an AI-powered engineering workflow built for the **Flip the Switch Hackathon by WeMakeDevs and DevTools Academy**.
 
-It connects customer support and software engineering through a shared chat room, where AI agents collaborate with a human to turn customer complaints into tested GitHub pull requests.
+It connects customer support and software engineering through a shared Discord room, where AI agents collaborate with a human to turn customer complaints into tested GitHub pull requests.
 
 ## The Problem
 
@@ -13,7 +13,7 @@ This process creates delays and unnecessary coordination.
 
 ## Our Solution
 
-ShipLoop uses Switch to coordinate three specialized AI agents and a human operator in one shared Mattermost room.
+ShipLoop uses Switch to coordinate three specialized AI agents and a human operator in one shared chat room. The final demo runs on Discord, and Mattermost is the local fallback.
 
 - **Triager:** Understands customer reports and classifies them as bugs, questions or feature requests.
 - **Fixer:** Reproduces bugs, writes regression tests, implements fixes and opens GitHub pull requests.
@@ -50,11 +50,11 @@ flowchart TD
 
 ## Switch Setup and Agent Configuration
 
-ShipLoop uses Switch to coordinate AI agents through a shared Mattermost room.
+ShipLoop uses Switch to coordinate AI agents through one shared chat room. The final demo uses the Discord channel `#shiploop-demo`, and the earlier Mattermost room `shiploop` is kept as a fallback.
 
 ### Shared Room
 
-Create a shared room named `shiploop` and configure three exclusive roles:
+Create one shared room and configure three exclusive roles. Each agent can hold only one role at a time, so all three agents must work in the same room:
 
 | Role | Responsibility |
 |---|---|
@@ -86,7 +86,8 @@ The development setup used for the hackathon includes:
 - Switch Console
 - switch-core
 - Docker Desktop
-- Mattermost
+- Discord, for the final demo
+- Mattermost, as the local fallback
 - Claude Code
 - GitHub CLI
 
@@ -94,9 +95,11 @@ For a reproducible installation, configure these components using their official
 
 Switch documentation: https://docs.switchagents.ai/llms.txt
 
-**Note:** Agent instructions and room configuration are part of the ShipLoop workflow. They must be configured separately from cloning the FastAPI demo repository.
+**Note:** Agent instructions and room configuration are part of the ShipLoop workflow. They must be configured separately from cloning the FastAPI demo repository. See [the setup guide](docs/switch-setup.md).
 
-1. A customer submits a complaint in the shared ShipLoop room.
+## Workflow
+
+1. A customer submits a complaint in the shared chat room.
 2. Triager classifies the report.
 3. For bugs, Triager hands the original customer report to Fixer in the same thread.
 4. Fixer reproduces the issue, writes a failing regression test and implements the smallest appropriate fix.
@@ -121,14 +124,14 @@ The three exclusive roles are:
 - `fixer`
 - `reviewer`
 
-All three agents operate in the `shiploop` room.
+All three agents operate in the same room.
 
 ## Human-in-the-Loop Safety
 
 ShipLoop keeps important decisions under human control.
 
-- Agents cannot merge pull requests.
-- Agents cannot push to the main branch.
+- Agents are instructed never to merge pull requests.
+- Agents are instructed never to push to the main branch.
 - Customer replies require human approval.
 - Reviewers provide findings and recommendations rather than making merge decisions.
 - Every fix is submitted through a GitHub pull request.
@@ -156,13 +159,59 @@ Prices are represented in cents.
 
 ### Deliberately Planted Bugs
 
-The demo application contains three deliberately introduced bugs to demonstrate the workflow:
+The demo application was built with three deliberately introduced bugs to demonstrate the workflow:
 
-1. **Cart quantity bug:** Adding the same product multiple times replaces the existing quantity instead of adding to it.
-2. **Exact-stock checkout:** This bug was fixed and merged in PR #3. Checkout now allows customers to purchase exactly the available stock.
-3. **Duplicate cancellation bug:** Cancelling the same order multiple times restores stock multiple times.
+1. **Cart quantity bug (still present on purpose):** Adding the same product multiple times replaces the existing quantity instead of adding to it.
+2. **Exact-stock checkout (fixed in [PR #3](https://github.com/Jatin083/shiploop/pull/3)):** Checkout refused an order for exactly the available stock.
+3. **Duplicate cancellation (fixed in [PR #6](https://github.com/Jatin083/shiploop/pull/6)):** Cancelling the same order twice restored stock twice.
 
 These are intentional demonstration bugs, not claims about production software.
+
+## Verified Demo Run
+
+The final demo ran in the Discord channel `#shiploop-demo`, using this customer complaint:
+
+> I cancelled my order for 2 monitors, then the page froze so I pressed cancel again. Now your site shows 7 monitors in stock, but you only had 5. Something looks wrong.
+
+The result was [PR #6](https://github.com/Jatin083/shiploop/pull/6), reviewed by the Reviewer agent and merged by a human.
+
+| Evidence | Result |
+|---|---|
+| New regression test against the old code | 1 failed, 40 passed |
+| Full test suite with the fix | 41 passed |
+| Reviewer's 11 extra edge-case tests on the fix | All passed |
+| The same 11 tests on the code before the fix | 7 failed, 4 passed |
+| Merge | Human merge, commit `6abaf0a` |
+
+The Reviewer's edge-case tests were temporary and are not stored in this repository. Their results are as reported by the Reviewer agent in the chat.
+
+### Timing
+
+Triager recorded these times for the report it kept:
+
+| Step | Time (UTC, Nov 7, 2026) |
+|---|---|
+| Complaint received | 03:10:57.670 |
+| Investigation started | 03:11:22.503 |
+| PR opened | 03:11:59 |
+| Human merge confirmed | 03:14:04 |
+| **Total elapsed** | **3 minutes 6.33 seconds** |
+
+The complaint was accidentally posted three times. Triager closed the older duplicates, and this time is measured from the latest post, not the first one. The time ends at the human merge, before any customer reply approval.
+
+### Customer Update
+
+Triager drafted a customer update. It was **not sent** to any customer.
+
+### Known Limitations
+
+- The fix is merged, but no production deployment exists. This is a demo application.
+- Stock counts that were already inflated are not repaired by the fix.
+- Concurrent cancellations may still produce incorrect stock under forced conditions.
+- All data is in memory and resets when the server restarts.
+- The rule that agents never merge comes from their instructions and the permission approvals in Switch. It is not enforced by GitHub branch protection.
+- GitHub Copilot review did not complete because of insufficient quota, so it is not part of this evidence.
+- Switch, the chat app and the agents must be configured by hand using `docs/switch-setup.md`. Cloning the repository alone does not recreate them.
 
 ## Technology Stack
 
@@ -171,7 +220,8 @@ These are intentional demonstration bugs, not claims about production software.
 - Pytest
 - Switch
 - Claude Code
-- Mattermost
+- Discord
+- Mattermost, as the local fallback
 - Git and GitHub
 
 ## Local Setup
@@ -182,7 +232,7 @@ These are intentional demonstration bugs, not claims about production software.
 - Git
 - Switch Console and switch-core
 - Docker Desktop
-- Mattermost configured through Switch
+- Discord or Mattermost, connected through Switch
 
 ### Clone the repository
 
@@ -233,6 +283,11 @@ shiploop/
 │   ├── main.py
 │   ├── cart.py
 │   └── orders.py
+├── docs/
+│   ├── agent-instructions/
+│   ├── architecture.md
+│   ├── demo-script.md
+│   └── switch-setup.md
 ├── tests/
 │   ├── conftest.py
 │   └── test_*.py
