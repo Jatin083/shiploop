@@ -130,5 +130,17 @@ def test_cancel_order_sets_status_and_restores_stock(client, cart_id):
     assert products["monitor"].stock == 5
 
 
+def test_cancelling_an_order_twice_restores_stock_once(client, cart_id):
+    add_item(client, cart_id, "monitor", 2)
+    order = place_order(client, cart_id)
+
+    client.post(f"/orders/{order['id']}/cancel")
+    response = client.post(f"/orders/{order['id']}/cancel")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "cancelled"
+    assert products["monitor"].stock == 5
+
+
 def test_cancel_unknown_order_returns_404(client):
     assert client.post("/orders/999/cancel").status_code == 404

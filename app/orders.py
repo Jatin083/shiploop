@@ -100,8 +100,13 @@ def get_order(order_id: int) -> OrderResponse:
 
 @router.post("/{order_id}/cancel", response_model=OrderResponse)
 def cancel_order(order_id: int) -> OrderResponse:
-    """Cancel an order and put its items back in stock."""
+    """Cancel an order and put its items back in stock.
+
+    Cancelling an order that is already cancelled changes nothing.
+    """
     order = get_order_or_404(order_id)
+    if order.status == OrderStatus.CANCELLED:
+        return order
     for item in order.items:
         products[item.product_id].stock += item.quantity
     order.status = OrderStatus.CANCELLED
