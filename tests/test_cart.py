@@ -64,6 +64,22 @@ def test_total_adds_up_different_products(client, cart_id):
     assert client.get(f"/carts/{cart_id}").json()["total_cents"] == 4999 + 2 * 2499
 
 
+def test_adding_same_product_twice_adds_the_quantities(client, cart_id):
+    client.post(f"/carts/{cart_id}/items", json={"product_id": "mouse", "quantity": 2})
+
+    response = client.post(
+        f"/carts/{cart_id}/items", json={"product_id": "mouse", "quantity": 3}
+    )
+
+    assert response.status_code == 201
+    body = response.json()
+    assert len(body["items"]) == 1
+    assert body["items"][0]["quantity"] == 5
+    assert body["items"][0]["line_total_cents"] == 5 * 2499
+    assert body["total_cents"] == 5 * 2499
+    assert client.get(f"/carts/{cart_id}").json() == body
+
+
 def test_add_item_to_unknown_cart_returns_404(client):
     response = client.post(
         "/carts/999/items", json={"product_id": "mouse", "quantity": 1}
