@@ -7,7 +7,7 @@ ShipLoop is a multi-agent workflow that connects customer support and software e
 Its architecture combines:
 
 - Switch for agent coordination and role management.
-- Mattermost for shared team communication.
+- Discord for shared team communication in the final demo, with Mattermost as the local fallback.
 - Claude Code for agent execution.
 - GitHub for version control and pull requests.
 - FastAPI for the demonstration shopping application.
@@ -18,7 +18,7 @@ Its architecture combines:
 ```mermaid
 flowchart TB
     Customer[Customer]
-    Chat[Shared Mattermost Room]
+    Chat[Shared Discord Room]
     Switch[Switch Coordination Layer]
 
     Triager[Triager Agent]
@@ -111,4 +111,4 @@ The change was submitted through GitHub PR #3 and reviewed before human-controll
 
 The demonstration shopping API uses in-memory data. Data resets when the server restarts.
 
-Switch, Mattermost and Claude Code require separate local configuration. Cloning the repository alone does not recreate the complete agent environment.
+Switch, the chat app and Claude Code require separate local configuration. Cloning the repository alone does not recreate the complete agent environment.

@@ -15,7 +15,8 @@ Install and configure:
 - Claude Code
 - GitHub CLI
 - GitHub account
-- Mattermost through Switch
+- Discord, connected through Switch, for the final demo
+- Mattermost through Switch, as the fallback
 
 ## 2. Start Switch and Mattermost
 
@@ -26,9 +27,28 @@ Install and configure:
 5. Select Open in Mattermost.
 6. Confirm that Mattermost is accessible.
 
+### Connect Discord
+
+Follow the official guide: https://docs.switchagents.ai/switch-rooms/deploy/messaging-apps/discord.md
+
+In short:
+
+1. Create a Discord server and a bot in the Discord Developer Portal.
+2. Turn on Server Members Intent and Message Content Intent.
+3. Invite the bot with the permissions the guide lists. Agent replies fail without **Manage Webhooks**.
+4. In Switch Console, go to Home → Messaging apps → Connect → Discord. Enter the bot token and server ID.
+5. Link your Discord account with **This is me**.
+
+Keep the bot token secret. Enter it only in Switch Console.
+
+### Troubleshooting on Windows
+
+- **`address already in use`, but no program holds the port:** Windows may have reserved that port range. Check with `netsh interface ipv4 show excludedportrange protocol=tcp`. To clear it, quit Docker Desktop and Switch Console, then run `net stop winnat` and `net start winnat` as administrator.
+- **Claude Code shows `CLI not installed` while the same panel finds its version:** this label appeared in Switch Console 0.40.1 on Windows, and agents still ran. Do not reinstall because of the label alone.
+
 ## 3. Create the Shared Room
 
-Create a shared Mattermost room named:
+Create one shared room. The final demo uses the Discord channel `#shiploop-demo`. The Mattermost fallback room is named:
 
 `shiploop`
 
@@ -84,7 +104,7 @@ API documentation:
 
 ## 7. Verify Agent Roles
 
-In the shared Mattermost room, execute:
+In the shared room, execute:
 
 `!roles`
 
