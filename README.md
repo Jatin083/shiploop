@@ -161,7 +161,7 @@ Prices are represented in cents.
 
 The demo application was built with three deliberately introduced bugs to demonstrate the workflow:
 
-1. **Cart quantity bug (still present on purpose):** Adding the same product multiple times replaces the existing quantity instead of adding to it.
+1. **Cart quantity (fixed in [PR #8](https://github.com/Jatin083/shiploop/pull/8)):** Adding more of a product replaced the existing quantity instead of adding to it.
 2. **Exact-stock checkout (fixed in [PR #3](https://github.com/Jatin083/shiploop/pull/3)):** Checkout refused an order for exactly the available stock.
 3. **Duplicate cancellation (fixed in [PR #6](https://github.com/Jatin083/shiploop/pull/6)):** Cancelling the same order twice restored stock twice.
 
@@ -203,12 +203,18 @@ The complaint was accidentally posted three times. Triager closed the older dupl
 
 Triager drafted a customer update. It was **not sent** to any customer.
 
+### Second Run: PR #8
+
+The workflow ran again in the same Discord channel for the cart quantity bug, and produced [PR #8](https://github.com/Jatin083/shiploop/pull/8). Its regression test gave 1 failed and 41 passed before the fix, and 42 passed after it. A human merged the PR. Triager recorded 5 minutes 52.978 seconds from the report in Discord to the merge. Its customer update draft was not sent.
+
 ### Known Limitations
 
 - The fix is merged, but no production deployment exists. This is a demo application.
 - Stock counts that were already inflated are not repaired by the fix.
 - Concurrent cancellations may still produce incorrect stock under forced conditions.
 - All data is in memory and resets when the server restarts.
+- Carts can hold more than the available stock, because stock is only checked at checkout.
+- Adding the same item at the exact same moment may still produce too low a cart quantity under forced conditions.
 - The rule that agents never merge comes from their instructions and the permission approvals in Switch. It is not enforced by GitHub branch protection.
 - GitHub Copilot review did not complete because of insufficient quota, so it is not part of this evidence.
 - Switch, the chat app and the agents must be configured by hand using `docs/switch-setup.md`. Cloning the repository alone does not recreate them.
